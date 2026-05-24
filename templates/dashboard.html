@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Professional Face Security System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; min-height: 100vh; }
+        .navbar { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 20px 40px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .navbar h1 { font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
+        .nav-links { display: flex; gap: 10px; }
+        .nav-links a { color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-weight: 500; }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .nav-links a.active { background: rgba(255,255,255,0.25); }
+        .container { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
+        .welcome-card { background: white; border-radius: 16px; padding: 35px; margin-bottom: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .welcome-card h2 { color: #1f2937; font-size: 28px; margin-bottom: 8px; }
+        .welcome-card p { color: #6b7280; font-size: 16px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; border-radius: 16px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: all 0.3s; border-left: 4px solid #3b82f6; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .stat-card h4 { color: #9ca3af; font-size: 13px; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; font-weight: 700; }
+        .stat-card .value { font-size: 40px; font-weight: 800; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .modules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .module-card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s; text-align: center; }
+        .module-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+        .module-icon { font-size: 64px; margin-bottom: 20px; }
+        .module-card h3 { color: #1f2937; font-size: 20px; margin-bottom: 10px; }
+        .module-card p { color: #6b7280; font-size: 14px; line-height: 1.6; }
+        .logs-section { background: white; border-radius: 16px; padding: 35px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .logs-section h2 { color: #1f2937; font-size: 22px; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px 18px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        th { background: #f9fafb; color: #4b5563; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { color: #374151; font-size: 14px; }
+        .status-success { color: #10b981; font-weight: 700; }
+        .status-failed { color: #ef4444; font-weight: 700; }
+        .message { padding: 15px 20px; border-radius: 10px; margin-top: 20px; display: none; }
+        .message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .message.error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🏢 Professional Face Security System</h1>
+        <div class="nav-links">
+            <a href="/dashboard" class="active">Dashboard</a>
+            <a href="/attendance">Attendance</a>
+            <a href="/visitors">Visitors</a>
+            <a href="/door-access">Door Access</a>
+            <a href="/capture">Capture & Train</a>
+            <a href="/recognize-live">Live Recognition</a>
+            <a href="/user-management">Users</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="welcome-card">
+            <h2>👋 Welcome back, {{ username }}!</h2>
+            <p>Manage your professional face recognition security system with all modules.</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>Today's Attendance</h4>
+                <div class="value">{{ attendance_today }}</div>
+            </div>
+            <div class="stat-card">
+                <h4>Today's Visitors</h4>
+                <div class="value">{{ visitors_today }}</div>
+            </div>
+            <div class="stat-card">
+                <h4>Door Access Today</h4>
+                <div class="value">{{ access_today }}</div>
+            </div>
+            <div class="stat-card">
+                <h4>System Status</h4>
+                <div class="value">Active</div>
+            </div>
+        </div>
+        
+        <div class="modules-grid">
+            <div class="module-card" onclick="window.location.href='/attendance'">
+                <div class="module-icon">📋</div>
+                <h3>Attendance System</h3>
+                <p>Track employee attendance with check-in/check-out times and status</p>
+            </div>
+            <div class="module-card" onclick="window.location.href='/visitors'">
+                <div class="module-icon">👥</div>
+                <h3>Visitor Management</h3>
+                <p>Register and track all visitors with purpose and visit details</p>
+            </div>
+            <div class="module-card" onclick="window.location.href='/door-access'">
+                <div class="module-icon">🚪</div>
+                <h3>Door Access Control</h3>
+                <p>Secure door access with face recognition and access logs</p>
+            </div>
+            <div class="module-card" onclick="window.location.href='/capture'">
+                <div class="module-icon">📸</div>
+                <h3>Capture & Train</h3>
+                <p>Capture face photos and train the AI recognition model (5+ photos enough)</p>
+            </div>
+            <div class="module-card" onclick="window.location.href='/trained-data'">
+                <div class="module-icon">📊</div>
+                <h3>Trained Data</h3>
+                <p>View trained face data, statistics, and training status for each person</p>
+            </div>
+            <div class="module-card" onclick="window.location.href='/recognize-live'">
+                <div class="module-icon">👤</div>
+                <h3>Live Recognition (KYC)</h3>
+                <p>Real-time KYC-style face recognition with identity verification</p>
+            </div>
+            <div class="module-card" onclick="window.location.href='/user-management'">
+                <div class="module-icon">👥</div>
+                <h3>User Management</h3>
+                <p>Manage users with different roles (admin/user) and access control</p>
+            </div>
+        </div>
+        
+        <div class="logs-section">
+            <h2>📊 Recent System Activity</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log[1] }}</td>
+                        <td>{{ log[2] }}</td>
+                        <td>{{ log[3] }}</td>
+                        <td class="status-{{ log[4] }}">{{ log[4] }}</td>
+                        <td>{{ log[5] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="message" id="message"></div>
+    </div>
+    
+    <script>
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 6000);
+        }
+    </script>
+</body>
+</html>

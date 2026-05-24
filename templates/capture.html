@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capture Photos - Face Security System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .navbar { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px 40px; color: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .navbar h1 { font-size: 24px; }
+        .nav-links a { color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; transition: all 0.3s; margin-left: 10px; }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .card { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .card-header h2 { color: #333; font-size: 28px; }
+        .webcam-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+        .video-box, .photo-box { background: #f5f7fa; border-radius: 16px; padding: 20px; text-align: center; }
+        .video-box h3, .photo-box h3 { color: #555; margin-bottom: 15px; font-size: 18px; }
+        video, canvas { width: 100%; border-radius: 12px; background: #000; }
+        .controls { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 14px 30px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4); }
+        .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+        .btn-success:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(17, 153, 142, 0.4); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #555; font-weight: 500; }
+        .input-group input { width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; transition: all 0.3s; }
+        .input-group input:focus { outline: none; border-color: #667eea; }
+        .message { padding: 15px 20px; border-radius: 10px; margin-top: 20px; display: none; }
+        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .photo-count { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 20px; border-radius: 30px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Professional Face Security System</h1>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/attendance">Attendance</a>
+            <a href="/visitors">Visitors</a>
+            <a href="/door-access">Door Access</a>
+            <a href="/capture" style="background: rgba(255,255,255,0.3);">Capture & Train</a>
+            <a href="/trained-data">Trained Data</a>
+            <a href="/recognize-live">Live Recognition</a>
+            <a href="/user-management">Users</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Capture Training Photos</h2>
+                <div class="photo-count" id="photoCount">Photos Captured: 0</div>
+            </div>
+            
+            <div class="input-group">
+                <label>Person Name</label>
+                <input type="text" id="personName" value="{{ username }}" readonly style="background: #f0f2f5; cursor: not-allowed;">
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border-radius: 12px; padding: 18px; margin-bottom: 25px; border: 1px solid #7dd3fc;">
+                <h4 style="color: #0369a1; font-size: 15px; margin-bottom: 8px; font-weight: 700;">Tip: Only 5+ Photos Needed!</h4>
+                <p style="color: #0c4a6e; font-size: 14px; line-height: 1.6;">Capture 5 or more clear photos from different angles for great recognition results!</p>
+            </div>
+            
+            <div class="webcam-container">
+                <div class="video-box">
+                    <h3>Webcam</h3>
+                    <video id="video" autoplay playsinline></video>
+                </div>
+                <div class="photo-box">
+                    <h3>Last Captured</h3>
+                    <canvas id="canvas" width="640" height="480"></canvas>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-primary" id="captureBtn">Capture Photo</button>
+                <button class="btn btn-success" id="trainBtn">Train Model</button>
+                <button class="btn btn-secondary" onclick="window.location.href='/dashboard'">Back to Dashboard</button>
+            </div>
+            
+            <div class="message" id="message"></div>
+        </div>
+    </div>
+    
+    <script>
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let context = canvas.getContext('2d');
+        let photoCount = 0;
+        
+        async function startWebcam() {
+            console.log('Starting webcam...');
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showMessage('Error: Your browser does not support webcam access!', 'error');
+                return;
+            }
+            
+            try {
+                console.log('Requesting camera permission...');
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' } 
+                });
+                
+                console.log('Camera permission granted!');
+                video.srcObject = stream;
+                
+                video.onloadedmetadata = () => {
+                    console.log('Video stream loaded, starting playback...');
+                    video.play();
+                };
+                
+            } catch (err) {
+                console.error('Webcam error:', err);
+                let errorMsg = 'Error accessing webcam: ';
+                
+                if (err.name === 'NotAllowedError') {
+                    errorMsg += 'Camera permission denied! Please click the 🔒 icon next to the URL and allow camera access.';
+                } else if (err.name === 'NotFoundError') {
+                    errorMsg += 'No webcam found! Please connect a camera.';
+                } else if (err.name === 'NotReadableError') {
+                    errorMsg += 'Webcam is already in use by another app (Zoom, Teams, etc.)! Close other apps and try again.';
+                } else if (err.name === 'OverconstrainedError') {
+                    errorMsg += 'Camera constraints not met. Trying different settings...';
+                    tryFallbackCamera();
+                    return;
+                } else {
+                    errorMsg += err.message;
+                }
+                showMessage(errorMsg, 'error');
+            }
+        }
+        
+        async function tryFallbackCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.onloadedmetadata = () => video.play();
+                showMessage('Camera active!', 'success');
+            } catch (err) {
+                showMessage('Still no camera access: ' + err.message, 'error');
+            }
+        }
+        
+        function capturePhoto() {
+            if (!video.srcObject) {
+                showMessage('No webcam active! Please allow camera access first.', 'error');
+                return;
+            }
+            
+            context.drawImage(video, 0, 0, 640, 480);
+            photoCount++;
+            document.getElementById('photoCount').textContent = 'Photos Captured: ' + photoCount;
+            savePhoto();
+        }
+        
+        async function savePhoto() {
+            const imageData = canvas.toDataURL('image/jpeg');
+            const personName = document.getElementById('personName').value || '{{ username }}';
+            
+            try {
+                const response = await fetch('/api/save-photo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        image: imageData, 
+                        person_name: personName 
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (err) {
+                showMessage('Error saving photo: ' + err.message, 'error');
+            }
+        }
+        
+        async function trainModel() {
+            const btn = document.getElementById('trainBtn');
+            btn.disabled = true;
+            btn.textContent = 'Training... ⏳';
+            showMessage('Training model, please wait...', 'success');
+            
+            try {
+                const response = await fetch('/api/train', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (err) {
+                showMessage('Error training model: ' + err.message, 'error');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = '⚡ Train Model';
+        }
+        
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+            msg.style.display = 'block';
+            console.log(type.toUpperCase() + ':', text);
+            
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 7000);
+        }
+        
+        document.getElementById('captureBtn').addEventListener('click', capturePhoto);
+        document.getElementById('trainBtn').addEventListener('click', trainModel);
+        
+        window.addEventListener('load', () => {
+            console.log('Page loaded, starting webcam...');
+            startWebcam();
+        });
+    </script>
+</body>
+</html>

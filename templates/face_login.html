@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Login - Professional Face Security</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); min-height: 100vh; display: flex; flex-direction: column; }
+        .navbar { background: rgba(0,0,0,0.2); padding: 15px 40px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .navbar h1 { font-size: 22px; }
+        .nav-links a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; transition: all 0.3s; }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-card { background: white; border-radius: 24px; padding: 45px; box-shadow: 0 25px 80px rgba(0,0,0,0.35); max-width: 600px; width: 100%; }
+        .card-header { text-align: center; margin-bottom: 35px; }
+        .card-header h2 { color: #1f2937; font-size: 30px; margin-bottom: 8px; }
+        .card-header p { color: #6b7280; font-size: 15px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #374151; font-weight: 600; }
+        .form-group select { width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 15px; transition: all 0.3s; }
+        .form-group select:focus { outline: none; border-color: #3b82f6; }
+        .webcam-container { background: #0f172a; border-radius: 16px; padding: 25px; text-align: center; margin-bottom: 25px; }
+        .webcam-container h4 { color: #e5e7eb; font-size: 16px; margin-bottom: 15px; }
+        video { width: 100%; max-width: 450px; border-radius: 12px; background: #000; border: 3px solid #3b82f6; }
+        .message { padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; display: none; }
+        .message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .message.error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .message.info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        .controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 14px 32px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: #64748b; color: white; }
+        .btn-secondary:hover { background: #475569; }
+        .result-box { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 16px; padding: 25px; text-align: center; display: none; margin-bottom: 20px; }
+        .result-box.denied { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .result-icon { font-size: 56px; margin-bottom: 12px; }
+        .result-box h3 { color: white; font-size: 24px; margin-bottom: 6px; }
+        .result-box p { color: rgba(255,255,255,0.9); font-size: 15px; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Professional Face Security</h1>
+        <div class="nav-links">
+            <a href="/login">Password Login</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="login-card">
+            <div class="card-header">
+                <h2>Face Login & Verification</h2>
+                <p>Select your account and verify with real-time face recognition</p>
+            </div>
+            
+            <div class="message" id="message"></div>
+            <div class="result-box" id="resultBox">
+                <div class="result-icon" id="resultIcon">OK</div>
+                <h3 id="resultTitle">Verified!</h3>
+                <p id="resultText">Welcome back! Logging you in...</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Select Your Account</label>
+                <select id="usernameSelect">
+                    <option value="">-- Select your username --</option>
+                    <option value="admin">admin</option>
+                    <option value="abebe">abebe</option>
+                    <option value="abebel">abebel</option>
+                    <option value="abel">abel</option>
+                </select>
+            </div>
+            
+            <div class="webcam-container">
+                <h4>Position Your Face in Front of the Camera</h4>
+                <video id="video" autoplay playsinline></video>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-primary" id="loginBtn">Verify & Login</button>
+                <button class="btn btn-secondary" onclick="window.location.href='/login'">Password Login</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let video = document.getElementById('video');
+        let isLoggingIn = false;
+        
+        async function startWebcam() {
+            try {
+                showMessage('Starting camera...', 'info');
+                console.log('Requesting camera...');
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' } 
+                });
+                
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    console.log('Camera active!');
+                    video.play();
+                    showMessage('Camera ready! Select your account and click "Verify & Login".', 'success');
+                };
+                
+            } catch (err) {
+                console.error('Webcam error:', err);
+                let errorMsg = 'Error accessing camera: ';
+                
+                if (err.name === 'NotAllowedError') {
+                    errorMsg += 'Camera permission denied! Please click the lock icon next to the URL and allow camera access.';
+                } else if (err.name === 'NotFoundError') {
+                    errorMsg += 'No webcam found! Please connect a camera.';
+                } else if (err.name === 'NotReadableError') {
+                    errorMsg += 'Webcam is already in use by another app (Zoom, Teams, etc.)! Close other apps and try again.';
+                } else {
+                    errorMsg += err.message;
+                }
+                
+                showMessage(errorMsg, 'error');
+            }
+        }
+        
+        function captureFrame() {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/jpeg', 0.8);
+        }
+        
+        async function faceLogin() {
+            const usernameSelect = document.getElementById('usernameSelect');
+            const selectedUsername = usernameSelect.value;
+            
+            if (!selectedUsername) {
+                showMessage('Please select your account first!', 'error');
+                return;
+            }
+            
+            if (isLoggingIn) return;
+            isLoggingIn = true;
+            
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+            const resultBox = document.getElementById('resultBox');
+            resultBox.style.display = 'none';
+            
+            showMessage('Capturing and verifying your face...', 'info');
+            
+            try {
+                const imageData = captureFrame();
+                
+                const response = await fetch('/api/verify-face', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        image: imageData,
+                        username: selectedUsername
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    const resultIcon = document.getElementById('resultIcon');
+                    const resultTitle = document.getElementById('resultTitle');
+                    const resultText = document.getElementById('resultText');
+                    
+                    resultIcon.textContent = 'OK';
+                    resultTitle.textContent = 'Face Verified!';
+                    resultText.textContent = `Welcome back, ${result.username}! (Confidence: ${result.confidence.toFixed(1)}%) Logging you in...`;
+                    resultBox.className = 'result-box';
+                    resultBox.style.display = 'block';
+                    showMessage('Face verified! Redirecting to dashboard...', 'success');
+                    
+                    setTimeout(() => {
+                        submitLogin(result.username);
+                    }, 1500);
+                } else {
+                    const resultIcon = document.getElementById('resultIcon');
+                    const resultTitle = document.getElementById('resultTitle');
+                    const resultText = document.getElementById('resultText');
+                    
+                    resultIcon.textContent = 'X';
+                    resultTitle.textContent = 'Verification Failed';
+                    resultText.textContent = result.message || 'Face not recognized. Please try again.';
+                    resultBox.className = 'result-box denied';
+                    resultBox.style.display = 'block';
+                    showMessage(result.message || 'Face not recognized. Please try again.', 'error');
+                    
+                    btn.disabled = false;
+                    btn.textContent = 'Verify & Login';
+                    isLoggingIn = false;
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                showMessage('Error during verification: ' + error.message, 'error');
+                
+                btn.disabled = false;
+                btn.textContent = 'Verify & Login';
+                isLoggingIn = false;
+            }
+        }
+        
+        function submitLogin(username) {
+            const btn = document.getElementById('loginBtn');
+            btn.textContent = 'Redirecting...';
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/face-login-auth';
+            
+            const usernameInput = document.createElement('input');
+            usernameInput.type = 'hidden';
+            usernameInput.name = 'username';
+            usernameInput.value = username;
+            
+            form.appendChild(usernameInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                if (type !== 'success' || text.includes('Camera ready')) {
+                    msg.style.display = 'none';
+                }
+            }, 7000);
+        }
+        
+        document.getElementById('loginBtn').addEventListener('click', faceLogin);
+        startWebcam();
+    </script>
+</body>
+</html>

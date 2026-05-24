@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Door Access Control - Professional Face Security</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; min-height: 100vh; }
+        .navbar { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 20px 40px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .navbar h1 { font-size: 24px; font-weight: 700; }
+        .nav-links { display: flex; gap: 10px; }
+        .nav-links a { color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-weight: 500; }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .nav-links a.active { background: rgba(255,255,255,0.25); }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .page-header { background: white; border-radius: 16px; padding: 30px; margin-bottom: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
+        .page-header h2 { color: #1f2937; font-size: 26px; }
+        .btn-group { display: flex; gap: 12px; }
+        .btn { padding: 12px 28px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-success { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4); }
+        .btn-danger { background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4); }
+        .content-card { background: white; border-radius: 16px; padding: 35px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .content-card h3 { color: #1f2937; font-size: 20px; margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 16px 20px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        th { background: #f9fafb; color: #4b5563; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { color: #374151; font-size: 14px; }
+        .access-granted { color: #10b981; font-weight: 700; }
+        .access-denied { color: #ef4444; font-weight: 700; }
+        .message { padding: 15px 20px; border-radius: 10px; margin-top: 20px; display: none; }
+        .message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .message.error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🏢 Professional Face Security System</h1>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/attendance">Attendance</a>
+            <a href="/visitors">Visitors</a>
+            <a href="/door-access" class="active">Door Access</a>
+            <a href="/capture">Capture & Train</a>
+            <a href="/trained-data">Trained Data</a>
+            <a href="/recognize-live">Live Recognition</a>
+            <a href="/user-management">Users</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>🚪 Door Access Control</h2>
+            <div class="btn-group">
+                <button class="btn btn-success" onclick="grantAccess()">✅ Grant Access</button>
+                <button class="btn btn-danger" onclick="denyAccess()">❌ Deny Access</button>
+            </div>
+        </div>
+        
+        <div class="content-card">
+            <h3>Recent Door Access Logs</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Door</th>
+                        <th>Access Time</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record[0] }}</td>
+                        <td>{{ record[1] or '-' }}</td>
+                        <td>{{ record[2] }}</td>
+                        <td>{{ record[3] }}</td>
+                        <td>{{ record[5] or '-' }}</td>
+                        <td class="{{ 'access-granted' if record[4] == 1 else 'access-denied' }}">
+                            {{ 'Granted' if record[4] == 1 else 'Denied' }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #9ca3af;">No access logs yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="message" id="message"></div>
+    </div>
+    
+    <script>
+        async function grantAccess() {
+            try {
+                const response = await fetch('/api/door/access', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ granted: 1, method: 'manual' })
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showMessage(data.message, 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
+        }
+        
+        async function denyAccess() {
+            try {
+                const response = await fetch('/api/door/access', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ granted: 0, method: 'manual' })
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showMessage(data.message, 'error');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
+        }
+        
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

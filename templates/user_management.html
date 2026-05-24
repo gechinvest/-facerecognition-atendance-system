@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Professional Face Security</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; min-height: 100vh; }
+        .navbar { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 20px 40px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .navbar h1 { font-size: 24px; font-weight: 700; }
+        .nav-links { display: flex; gap: 10px; }
+        .nav-links a { color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; transition: all 0.3s; font-weight: 500; }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .nav-links a.active { background: rgba(255,255,255,0.25); }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .page-header { background: white; border-radius: 16px; padding: 30px; margin-bottom: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
+        .page-header h2 { color: #1f2937; font-size: 26px; }
+        .btn { padding: 12px 28px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4); }
+        .content-card { background: white; border-radius: 16px; padding: 35px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 25px; }
+        .content-card h3 { color: #1f2937; font-size: 20px; margin-bottom: 25px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #4b5563; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px; transition: all 0.3s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #3b82f6; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 16px 20px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        th { background: #f9fafb; color: #4b5563; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { color: #374151; font-size: 14px; }
+        .role-admin { color: #dc2626; font-weight: 700; background: #fee2e2; padding: 4px 10px; border-radius: 6px; }
+        .role-user { color: #059669; font-weight: 700; background: #d1fae5; padding: 4px 10px; border-radius: 6px; }
+        .kyc-verified { color: #059669; font-weight: 700; background: #d1fae5; padding: 4px 10px; border-radius: 6px; }
+        .kyc-pending { color: #92400e; font-weight: 700; background: #fef3c7; padding: 4px 10px; border-radius: 6px; }
+        .btn-small { padding: 6px 12px; font-size: 13px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-warning:hover { background: #d97706; }
+        .message { padding: 15px 20px; border-radius: 10px; margin-top: 20px; display: none; }
+        .message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .message.error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Professional Face Security System</h1>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/attendance">Attendance</a>
+            <a href="/visitors">Visitors</a>
+            <a href="/door-access">Door Access</a>
+            <a href="/capture">Capture & Train</a>
+            <a href="/trained-data">Trained Data</a>
+            <a href="/recognize-live">Live Recognition</a>
+            <a href="/user-management" class="active">Users</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>User Management</h2>
+        </div>
+        
+        <div class="content-card">
+            <h3>Add New User</h3>
+            <form id="addUserForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="newUsername" placeholder="Enter username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="newPassword" placeholder="Enter password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="newFullName" placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="newEmail" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="newRole" required>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add User</button>
+            </form>
+            <div class="message" id="message"></div>
+        </div>
+        
+        <div class="content-card">
+            <h3>All Users</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>KYC Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user[0] if user[0] else '-' }}</td>
+                        <td>{{ user[1] if user[1] else '-' }}</td>
+                        <td>{{ user[3] if user[3] else '-' }}</td>
+                        <td>{{ user[4] if user[4] else '-' }}</td>
+                        <td><span class="role-{{ user[2] if user[2] else 'user' }}">{{ (user[2] if user[2] else 'user')|capitalize }}</span></td>
+                        <td>
+                            {% set kyc = user[5] if user|length > 5 else 1 %}
+                            {% if kyc == 1 or kyc == True %}
+                                <span class="kyc-verified">Verified</span>
+                            {% else %}
+                                <span class="kyc-pending">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set user_id = user[0] %}
+                            {% set kyc = user[5] if user|length > 5 else 1 %}
+                            {% if (user[2] if user[2] else 'user') != 'admin' %}
+                                {% if kyc == 1 or kyc == True %}
+                                    <button class="btn-small btn-warning" onclick="unverifyKyc({{ user_id }})">Unverify</button>
+                                {% else %}
+                                    <button class="btn-small btn-success" onclick="verifyKyc({{ user_id }})">Verify KYC</button>
+                                {% endif %}
+                            {% else %}
+                                <span style="color: #9ca3af; font-size: 13px;">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('addUserForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = {
+                username: document.getElementById('newUsername').value,
+                password: document.getElementById('newPassword').value,
+                full_name: document.getElementById('newFullName').value,
+                email: document.getElementById('newEmail').value,
+                role: document.getElementById('newRole').value
+            };
+            
+            try {
+                const response = await fetch('/api/add-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                const msgDiv = document.getElementById('message');
+                if (result.success) {
+                    showMessage('User added successfully!', 'success');
+                    document.getElementById('addUserForm').reset();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showMessage('Error: ' + result.message, 'error');
+                }
+            } catch (err) {
+                showMessage('Error adding user: ' + err.message, 'error');
+            }
+        });
+        
+        async function verifyKyc(userId) {
+            try {
+                const response = await fetch('/api/verify-kyc/' + userId, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showMessage('KYC verified successfully!', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showMessage('Error: ' + result.message, 'error');
+                }
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
+        }
+        
+        async function unverifyKyc(userId) {
+            try {
+                const response = await fetch('/api/unverify-kyc/' + userId, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showMessage('KYC unverified successfully!', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showMessage('Error: ' + result.message, 'error');
+                }
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
+        }
+        
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
