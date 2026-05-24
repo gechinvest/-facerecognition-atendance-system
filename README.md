@@ -1,4 +1,11 @@
 # 🎭 Face Recognition Attendance & Security System
+<img width="1881" height="914" alt="Screenshot 2026-05-24 231455" src="https://github.com/user-attachments/assets/300a0c05-019f-4b5d-8473-bfad5dce3695" /><img width="1881" height="914" alt="Screenshot 2026-05-24 231455" src="https://github.com/user-attachments/assets/35acffbd-c00b-4142-a3b6-4ad1755c412b" />
+
+
+<img width="1882" height="964" alt="Screenshot 2026-05-24 231540" src="https://github.com/user-attachments/assets/9ec39ef9-ed13-4e33-90ff-4d89f168096a" />
+<img width="1882" height="964" alt="Screenshot 2026-05-24 231540" src="https://github.com/user-attachments/assets/edbadd41-4dff-4651-9f2e-92a5dd3f14cd" />
+
+
 
 A professional, AI-powered face recognition system for attendance tracking, visitor management, and access control. Built with Flask and modern web technologies.
 
